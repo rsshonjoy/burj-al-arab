@@ -23,10 +23,10 @@ const Login = () => {
             setLoggedInUser(signedInUser);
             history.replace(from);
             // ...
-          }).catch(function(error) {
+        }).catch(function(error) {
             const errorMessage = error.message;
             console.log(errorMessage);
-          });
+        });
     }
     return (
         <div>
