@@ -1,39 +1,37 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import firebase from "firebase/app";
 import "firebase/auth";
 import firebaseConfig from './firebaseConfig';
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}else {
-    firebase.app();
-}
+import {UserContext} from '../../App';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const Login = () => {
+    const [loggedInUser, setLoggedInUser] = useContext(UserContext);
+    const history = useHistory();
+    const location = useLocation();
+    const { from } = location.state || { from: { pathname: "/" } };
+    
+    if(firebase.apps.length === 0){
+        firebase.initializeApp(firebaseConfig);
+    }
+    
     const handleGoogleSignIn = () => {
         var provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth()
-        .signInWithPopup(provider)
-        .then((result) => {
-            /** @type {firebase.auth.OAuthCredential} */
-            var credential = result.credential;
-            var token = credential.accessToken;
+        firebase.auth().signInWithPopup(provider).then(function(result) {
             const {displayName, email} = result.user;
-            const signInUser = {Name: displayName, email: email}
-            var user = result.user;
-            console.log(signInUser);
-            
-        }).catch((error) => {
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            var email = error.email;
-            var credential = error.credential;
-        });
-            }
+            const signedInUser = {name: displayName, email} 
+            setLoggedInUser(signedInUser);
+            history.replace(from);
+            // ...
+          }).catch(function(error) {
+            const errorMessage = error.message;
+            console.log(errorMessage);
+          });
+    }
     return (
         <div>
             <h1>This is Login</h1>
-            <button onClick={handleGoogleSignIn}>Sign in with Google</button>
+            <button onClick={handleGoogleSignIn}>Google Sign in</button>
         </div>
     );
 };
